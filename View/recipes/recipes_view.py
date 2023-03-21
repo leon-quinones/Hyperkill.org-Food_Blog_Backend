@@ -1,4 +1,4 @@
 
 
 class RecipeView:
-    pass
+    def __init__(self, ):

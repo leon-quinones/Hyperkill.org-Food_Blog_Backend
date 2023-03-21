@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 from Model.abstract_model import Model
 
 
@@ -7,10 +9,10 @@ class Recipe(Model):
         class_fields = ('id', 'name', 'description')
         return class_fields
 
-    def __init__(self, recipe_id: int, name: str, description: str):
-        self.id = recipe_id
-        self.name = name
-        self.description = description
+    def __init__(self, args: namedtuple):
+        self.id = int(args.id)
+        self.name = args.name
+        self.description = args.description
 
 
 
