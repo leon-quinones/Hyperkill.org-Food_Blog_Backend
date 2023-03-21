@@ -15,14 +15,17 @@ class BaseRepository(ABC):
         # save change in database
         self.client.save()
 
-    def create_one(self, object_dto: object):
+    def create_one(self, object_dto: object) -> Model:
+        id_label = self.model._get_model_fields()[0]
         query = self._create_query(object_dto.__dict__.keys())
         self.client.execute(query, tuple(object_dto.__dict__.values()))
+        return self.find_one_by_id(self.client.cursor.lastrowid, id_label=id_label)
 
     def find_one_by_id(self, item_id: int, id_label='id'):
         query = self._find_one_query(id_label)
         self.client.execute(query, (item_id,))
         item = self.client.cursor.fetchone()
+        print(f'este encontre: {item}')
         return self._build_object(item, self.model._get_model_fields())
 
     def find_all(self):
@@ -49,16 +52,15 @@ class BaseRepository(ABC):
         query_values = ''
 
         for field in object_attributes_keys:
-            print(field, query_values)
             query_fields += str(field) + ', '
             query_values += '?, '
-            print(query_values)
+
 
         query_fields = '(' + query_fields[0:-2] + ')'
         query_values = '(' + query_values[0:-2] + ')'
         query_operation = f'INSERT INTO {self.model_name} '
 
-        return query_operation + query_fields + ' VALUES ' + query_values + ';'
+        return query_operation + query_fields + ' VALUES' + query_values + ';'
 
     def _update_query(self, object_id_name: str, object_dto_attributes_keys: str):
         query_fields = ''
@@ -66,7 +68,7 @@ class BaseRepository(ABC):
         for field in object_dto_attributes_keys:
             query_fields += f'SET {field} = ?, '
 
-        query_condition = f' WHERE {object_id_name} = ?;'
+        query_condition = f' WHERE {object_id_name} = ? ;'
         return query_operation + query_fields[0:-2] + query_condition
 
     def _delete_query(self, object_id_name: str):
@@ -89,6 +91,5 @@ class BaseRepository(ABC):
         if len(data) != len(object_attributes_keys):
             raise ValueError('passed iterables has not the same len')
         Object_tuple = namedtuple('Object_tuple', object_attributes_keys)
-        print(data)
         object_args = Object_tuple._make(data)
         return self.model(object_args)

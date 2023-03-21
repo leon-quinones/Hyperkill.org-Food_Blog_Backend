@@ -1,4 +1,4 @@
 class RecipeCreateDto:
     def __init__(self, name: str, description: str):
-        self.name = name
-        self.description = description
+        self.recipe_name = name
+        self.recipe_description = description

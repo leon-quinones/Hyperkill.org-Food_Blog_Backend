@@ -4,7 +4,10 @@ import sqlite3
 from dotenv import load_dotenv
 from sqlite3 import OperationalError
 
+from Controller.recipe_controller import RecipeController
 from Repositories.interfaces.interface_database_connection import IDataBaseClient
+from Repositories.recipe_repository import RecipeRepository
+from View.recipes.recipes_view import RecipeView
 
 
 class SqliteClient(IDataBaseClient):
@@ -95,11 +98,20 @@ class SqliteClient(IDataBaseClient):
 class App:
     def __init__(self):
         self.data_base_connection = SqliteClient(os.getenv('DATABASE_HOST'))
+        self.repository = RecipeRepository(self.data_base_connection)
+        self.controller = RecipeController(self.repository)
+        self.view = RecipeView(self.controller)
 
     def __build_repositories(self):
         pass
+
+    def create_recipes(self):
+        self.view.create_recipe()
+
+
 
 
 if __name__ == '__main__':
     load_dotenv()
     app = App()
+    app.create_recipes()

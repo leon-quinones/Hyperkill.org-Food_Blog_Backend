@@ -5,8 +5,8 @@ from Repositories.base_repository import BaseRepository
 
 class RecipeRepository(BaseRepository):
 
-    def __init__(self, database_connection: IDataBaseClient, model_name: str):
-        self.super().__init__(database_connection, model_name, Recipe)
+    def __init__(self, database_connection: IDataBaseClient):
+        super().__init__(database_connection, 'recipes', Recipe)
 
     # def create_one(self, recipe_dto: RecipeCreateDto):
     #     query = self._create_query(recipe_dto.__dict__.keys())
