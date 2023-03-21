@@ -4,8 +4,7 @@ import sqlite3
 from dotenv import load_dotenv
 from sqlite3 import OperationalError
 
-from Model import meal, ingredient, meaure
-from Repositories.interface_database_connection import IDataBaseClient
+from Repositories.interfaces.interface_database_connection import IDataBaseClient
 
 
 class SqliteClient(IDataBaseClient):
@@ -66,6 +65,14 @@ class SqliteClient(IDataBaseClient):
                 self.cursor.execute(insert_query)
                 self.conn.commit()
 
+    def __retrieve_tables_in_database(self):
+        try:
+            self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
+            tables = self.cursor.fetchall()
+            return tables
+        except OperationalError:
+            print('Cannot retrieve tables from database')
+
     def connect(self, connection_string):
         try:
             self.conn = sqlite3.connect(connection_string, timeout=240)
@@ -78,13 +85,11 @@ class SqliteClient(IDataBaseClient):
         self.conn.close()
         print('Disconnected from database')
 
-    def __retrieve_tables_in_database(self):
-        try:
-            self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table"')
-            tables = self.cursor.fetchall()
-            return tables
-        except OperationalError:
-            print('Cannot retrieve tables from database')
+    def save(self):
+        self.conn.commit()
+
+    def execute(self, query: str, query_args: tuple):
+        self.cursor.execute(query, query_args)
 
 
 class App:

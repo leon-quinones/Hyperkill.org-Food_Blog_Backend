@@ -9,3 +9,7 @@ class IDataBaseClient(ABC):
     @abstractmethod
     def disconnect(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def save(self):
+        raise NotImplementedError
