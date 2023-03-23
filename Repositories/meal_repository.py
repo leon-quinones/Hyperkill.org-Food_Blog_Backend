@@ -5,5 +5,5 @@ from Repositories.interfaces.interface_database_connection import IDataBaseClien
 
 class MealRepository(BaseRepository):
 
-    def __init__(self, database_connection: IDataBaseClient, model_name: str):
-        self.super().__init__(database_connection, model_name, Meal)
+    def __init__(self, database_connection: IDataBaseClient):
+        super().__init__(database_connection, 'meals', Meal)

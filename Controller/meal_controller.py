@@ -1,15 +1,14 @@
 from Controller.base_controller import BaseController
-from Model.recipe.recipe_create_dto import RecipeCreateDto
+from Model.meal.meal_create_dto import MealCreateDto
 from Repositories.base_repository import BaseRepository
 
 
-class RecipeController(BaseController):
+class MealController(BaseController):
     def __init__(self, repository: BaseRepository):
         super().__init__(repository)
 
-
-    def create(self, recipe_dto: RecipeCreateDto):
-        return self._repository.create_one(recipe_dto)
+    def create(self, meal_create_dto: MealCreateDto):
+        return self._repository.create_one(meal_create_dto)
 
     def get_all(self):
         return self._repository.find_all()

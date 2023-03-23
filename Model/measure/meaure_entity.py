@@ -6,8 +6,9 @@ from Model.abstract_model import Model
 class Measure(Model):
     @staticmethod
     def _get_model_fields() -> tuple:
-        pass
+        class_fields = ('measure_id', 'measure_name')
+        return class_fields
 
     def __init__(self, args: namedtuple):
-        self.id = int(args.id)
-        self.name = args.name
+        self.measure_id = args.measure_id
+        self.measure_name = args.measure_name

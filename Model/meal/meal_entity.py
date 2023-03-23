@@ -6,9 +6,10 @@ from Model.abstract_model import Model
 class Meal(Model):
     @staticmethod
     def _get_model_fields() -> tuple:
-        pass
+        class_fields = ('meal_id', 'meal_name')
+        return class_fields
 
     def __init__(self, args: namedtuple):
-        self.id = int(args.id)
-        self.name = args.name
+        self.meal_id = int(args.meal_id)
+        self.meal_name = args.meal_name
 

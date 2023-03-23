@@ -25,12 +25,17 @@ class BaseRepository(ABC):
         query = self._find_one_query(id_label)
         self.client.execute(query, (item_id,))
         item = self.client.cursor.fetchone()
-        print(f'este encontre: {item}')
+        return self._build_object(item, self.model._get_model_fields())
+
+    def find_one_by_field(self, field_value: any, field_name: str):
+        query = self._find_one_query(field_name)
+        self.client.execute(query, (field_value,))
+        item = self.client.cursor.fetchone()
         return self._build_object(item, self.model._get_model_fields())
 
     def find_all(self):
         query = self._find_all_query()
-        self.client.execute(query)
+        self.client.execute(query,())
         items_data = self.client.cursor.fetchall()
         items = list()
         for entry in items_data:
@@ -85,6 +90,7 @@ class BaseRepository(ABC):
         return f'SELECT * FROM {self.model_name} WHERE {object_id_name} = ?;'
 
     def _find_all_query(self):
+        print(f'SELECT * FROM {self.model_name}')
         return f'SELECT * FROM {self.model_name}'
 
     def _build_object(self, data: tuple, object_attributes_keys: iter):
@@ -93,3 +99,5 @@ class BaseRepository(ABC):
         Object_tuple = namedtuple('Object_tuple', object_attributes_keys)
         object_args = Object_tuple._make(data)
         return self.model(object_args)
+
+
