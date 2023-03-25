@@ -1,10 +1,13 @@
+from typing import Union
+
 from Controller.base_controller import BaseController
 from Model.recipe.recipe_create_dto import RecipeCreateDto
 from Repositories.base_repository import BaseRepository
+from Repositories.recipe_repository import RecipeRepository
 
 
 class RecipeController(BaseController):
-    def __init__(self, repository: BaseRepository):
+    def __init__(self, repository: Union[BaseRepository, RecipeRepository]):
         super().__init__(repository)
 
 
@@ -13,3 +16,6 @@ class RecipeController(BaseController):
 
     def get_all(self):
         return self._repository.find_all()
+
+    def get_recipes_by_ingredients_and_meal(self, ingredients: iter, meals: iter):
+        return self._repository.find_recipe_by_ingredients_and_meal(ingredients, meals)

@@ -1,4 +1,6 @@
+import argparse
 import os
+import sys
 import sqlite3
 
 from dotenv import load_dotenv
@@ -126,22 +128,22 @@ class SqliteClient(IDataBaseClient):
 
 
 class App:
-    def __init__(self):
-
-        self.data_base_connection = SqliteClient(os.getenv('DATABASE_HOST'))
-        self.repository = RecipeRepository(self.data_base_connection)
+    def __init__(self, database_host: str):
+        print(database_host)
+        self.data_base_connection = SqliteClient(database_host)  # os.getenv('DATABASE_HOST')
+        self.recipe_repository = RecipeRepository(self.data_base_connection)
         self.serve_repository = ServeRepository(self.data_base_connection)
         self.meal_repository = MealRepository(self.data_base_connection)
         self.measure_repository = MeasureRepository(self.data_base_connection)
         self.quantity_repository = QuantityRepository(self.data_base_connection)
         self.ingredient_repository = IngredientRepository(self.data_base_connection)
-        self.controller = RecipeController(self.repository)
+        self.recipe_controller = RecipeController(self.recipe_repository)
         self.serve_controller = ServeController(self.serve_repository)
         self.meal_controller = MealController(self.meal_repository)
         self.measure_controller = MeasureController(self.measure_repository)
         self.ingredient_controller = IngredientController(self.ingredient_repository)
         self.quantity_controller = QuantityController(self.quantity_repository)
-        self.view = RecipeView(self.controller, self.serve_controller, self.quantity_controller)
+        self.view = RecipeView(self.recipe_controller, self.serve_controller, self.quantity_controller)
 
     def __build_repositories(self):
         pass
@@ -153,8 +155,46 @@ class App:
         unitless_id = self.measure_controller.get_by_unit_name('').measure_id
         self.view.create_recipe(meals, ingredients, measures, unitless_id)
 
+    def search_recipes(self, ingredients_name: iter, meals_name: iter):
+        # ingredients = ingredients_name.split(",")
+        # meals = meals_name.split(",")
+        recipes = self.recipe_controller.get_recipes_by_ingredients_and_meal(ingredients_name, meals_name)
+        print(len(recipes))
+        if len(recipes) > 0:
+            print('Recipes selected for you:', end=' ')
+            recipes_names = ''
+            for recipe in recipes:
+                recipes_names += f'{recipe.recipe_name}, '
+
+            print(recipes_names[0: -2])
+        else:
+            print('There are no such recipes in the database')
+
 
 if __name__ == '__main__':
+    separator = ','
     load_dotenv()
-    app = App()
-    app.create_recipes()
+    parse = argparse.ArgumentParser(
+        description='Recipe book: this program helps you find suitable recipes for your meals'
+                    '\n Also, you can incorporate yours and share them with the world.')
+    parse.add_argument('filename', help='database host connection string')
+    parse.add_argument('-i', '--ingredients', help='The --ingredients parameter should contain a list of ingredients '
+                                                   'separated by commas: --ingredients="milk,sugar,tea"')
+    parse.add_argument('-ms', '--meals', help='The --meals parameter should contain a list of meals separated by '
+                                              'commas --meals="dinner,supper"')
+    args = parse.parse_args()
+    app = App(args.filename)
+    if args.ingredients is None or args.meals is None:
+        print("You don't provide the ingredients and meals list to search in the recipe book.")
+        print('Continuing in create mode')
+        app.create_recipes()
+    else:
+        print('Continuing in search mode')
+        ingredients_user_input = args.ingredients.replace(' ', '')
+        meals_user_input = args.meals.replace(' ', '')
+        if separator not in ingredients_user_input or separator not in meals_user_input:
+            if len(ingredients_user_input) > 1 or len(meals_user_input) > 1:
+                ValueError('please insert names separated by commas')
+        ingredients = ingredients_user_input.split(separator)
+        meals = meals_user_input.split(separator)
+        app.search_recipes(ingredients, meals)
